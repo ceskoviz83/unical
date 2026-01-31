@@ -4,19 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d8194497-7984-4973-b4df-200f80cd2dfa" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/unical.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scripts/ssh_tunnel.bat" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/unical/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/unical/const.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/unical/register.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/unical/registry.py" afterDir="false" />
-    </list>
+    <list default="true" id="d8194497-7984-4973-b4df-200f80cd2dfa" name="Changes" comment="primo commit" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -38,13 +26,10 @@
     "assignee": "ceskoviz83"
   }
 }]]></component>
-  <component name="GithubDefaultAccount">
-    <option name="defaultAccountId" value="e063951d-f5d3-470f-a23d-b8434b7e15e3" />
-  </component>
   <component name="GithubPullRequestsUISettings"><![CDATA[{
   "selectedUrlAndAccountId": {
     "url": "https://github.com/ceskoviz83/unical.git",
-    "accountId": "e063951d-f5d3-470f-a23d-b8434b7e15e3"
+    "accountId": "14f485f2-cac4-4fff-907d-79136c5a67f4"
   }
 }]]></component>
   <component name="ProjectColorInfo">{
@@ -129,8 +114,17 @@
       <updated>1768756041345</updated>
       <workItem from="1769332100041" duration="6679000" />
       <workItem from="1769361454762" duration="1298000" />
-      <workItem from="1769846810410" duration="2646000" />
+      <workItem from="1769846810410" duration="2773000" />
     </task>
+    <task id="LOCAL-00001" summary="primo commit">
+      <option name="closed" value="true" />
+      <created>1769849990451</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1769849990451</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -158,5 +152,9 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="primo commit" />
+    <option name="LAST_COMMIT_MESSAGE" value="primo commit" />
   </component>
 </project>
