@@ -1,0 +1,3 @@
+REGISTRY_FILE = "register.json"
+ADDRESS = "192.168.1.117"
+PORT = 502
