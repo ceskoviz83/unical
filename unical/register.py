@@ -1,7 +1,9 @@
 import ctypes
 from enum import Enum
 
+from datetime import datetime
 from collections.abc import MutableMapping
+from unical import const
 
 class RegistryT(Enum):
     INT = 0
@@ -51,17 +53,19 @@ class Taxonomy(Mapper[str]):
     pass
 
 
-class Registry[T : RegistryT]:
+class Register:
     name: str = None
     address: int = None
     length: int = 0
     read : bool = False
     write : bool = False
-    raw: [T | None] = None
+    type : str = None
+    raw  = None
     unit: str = None
     scale: float = 1.0
     offset: float = 0.0
     bits = None
+    timestamp : datetime = None
     taxonomy = None
 
     def __init__(self,d : dict):
@@ -72,9 +76,18 @@ class Registry[T : RegistryT]:
         return
 
     def __repr__(self):
-        f = f"{self.address} - {self.name} - Raw = {self.raw} - Value = {self.value} "
+        return str(self.to_dict())
+
+    def to_dict(self) -> dict:
+        f = {'timestamp': self.timestamp,
+             'address': self.address,
+             'name': self.name,
+             'raw': self.raw,
+             'value': self.value,
+             'unit': self.unit}
         if self.description:
-            f += f"- {self.description}"
+            f['description'] = self.description
+
         return f
 
     def __str__(self):
@@ -108,30 +121,26 @@ class Registry[T : RegistryT]:
 
     @property
     def value(self):
-        if T == RegistryT.BITS:
-            return self.raw
-        elif T == RegistryT.INT:
-            return self.raw * self.scale + self.offset
+        res = self.raw
+        if self.type == "INT":
+            res = round(self.raw * self.scale + self.offset, ndigits=const.DECIMALS)
+        return res
 
-        return self.raw
-
-class RegistryMap(Mapper[Registry]):
+class RegistryMap(Mapper[Register]):
 
     def __init__(self, d : list):
         super().__init__()
         for el in d:
-            T = RegistryT.__getitem__(el['type'])
-
-            item = Registry[T](el)
+            item = Register(el)
             self += item
 
 
-    def __setitem__(self, key : str | None, value : Registry):
+    def __setitem__(self, key : str | None, value : Register):
         if key is None:
             key = value.address
         super().__setitem__(key,value)
 
-    def __add__(self, other : Registry):
+    def __add__(self, other : Register):
         if self.__contains__(other.address):
             raise KeyError(other.address)
         self._d[other.address] = other

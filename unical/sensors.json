@@ -1,0 +1,172 @@
+[
+  {
+    "name": "Ingresso Acqua",
+    "address": 400,
+    "length": 1,
+    "scale": 0.1,
+    "unit": "°C",
+    "read": true,
+    "write": false,
+    "type": "INT"
+  },
+  {
+    "name": "Uscita Acqua",
+    "address": 401,
+    "length": 1,
+    "scale": 0.1,
+    "unit": "°C",
+    "read": true,
+    "write": false,
+    "type": "INT"
+  },
+  {
+    "name": "Acqua Calda Sanitaria",
+    "address": 405,
+    "length": 1,
+    "scale": 0.1,
+    "unit": "°C",
+    "read": true,
+    "write": false,
+    "type": "INT"
+  },
+  {
+    "name": "Aspirazione compressori",
+    "address": 422,
+    "length": 1,
+    "scale": 0.1,
+    "unit": "°C",
+    "read": true,
+    "write": false,
+    "type": "INT"
+  },
+  {
+    "name": "Temperatura Esterna",
+    "address": 428,
+    "length": 1,
+    "scale": 0.1,
+    "unit": "°C",
+    "read": true,
+    "write": false,
+    "type": "INT"
+  },
+  {
+    "name": "Setpoint attuale termoregolazione",
+    "address": 242,
+    "length": 1,
+    "scale": 0.1,
+    "unit": "°C",
+    "read": true,
+    "write": false,
+    "type": "INT"
+  },
+  {
+    "name": "Temperatura di riferimento attuale per termoregolazione",
+    "address": 247,
+    "length": 1,
+    "scale": 0.1,
+    "unit": "°C",
+    "read": true,
+    "write": false,
+    "type": "INT"
+  },
+  {
+    "name": "Temperatura Evaporazione",
+    "address": 253,
+    "length": 1,
+    "scale": 0.1,
+    "unit": "°C",
+    "read": true,
+    "write": false,
+    "type": "INT"
+  },
+  {
+    "name": "Temperatura Condensazione",
+    "address": 254,
+    "length": 1,
+    "scale": 0.1,
+    "unit": "°C",
+    "read": true,
+    "write": false,
+    "type": "INT"
+  },
+  {
+    "name": "Circuito Alta pressione",
+    "address": 406,
+    "length": 1,
+    "scale": 0.01,
+    "unit": "bar",
+    "read": true,
+    "write": false,
+    "type": "INT"
+  },
+  {
+    "name": "Circuito Bassa pressione",
+    "address": 414,
+    "length": 1,
+    "scale": 0.01,
+    "unit": "bar",
+    "read": true,
+    "write": false,
+    "type": "INT"
+  },
+  {
+    "name": "Ventilatore di condensazione",
+    "address": 7000,
+    "length": 1,
+    "scale": 0.1,
+    "unit": "%",
+    "read": true,
+    "write": false,
+    "type": "INT"
+  },
+  {
+    "name": "Pompa circolatore",
+    "address": 7001,
+    "length": 1,
+    "scale": 0.1,
+    "unit": "%",
+    "read": true,
+    "write": false,
+    "type": "INT"
+  },
+  {
+    "name": "Setpoint Raffrescamento",
+    "address": 1001,
+    "length": 1,
+    "scale": 0.1,
+    "unit": "°C",
+    "read": true,
+    "write": true,
+    "type": "INT"
+  },
+  {
+    "name": "Setpoint Riscaldamento",
+    "address": 1002,
+    "length": 1,
+    "scale": 0.1,
+    "unit": "°C",
+    "read": true,
+    "write": true,
+    "type": "INT"
+  },
+  {
+    "name": "Setpoint Sanitario",
+    "address": 1003,
+    "length": 1,
+    "scale": 0.1,
+    "unit": "°C",
+    "read": true,
+    "write": true,
+    "type": "INT"
+  },
+  {
+    "name": "Ore Funzionamento",
+    "address": 305,
+    "length": 1,
+    "scale": 1,
+    "unit": "h",
+    "read": true,
+    "write": false,
+    "type": "INT"
+  }
+]

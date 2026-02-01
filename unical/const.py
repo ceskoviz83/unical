@@ -1,3 +1,7 @@
 REGISTRY_FILE = "register.json"
-ADDRESS = "192.168.1.117"
+ADDRESS = "192.168.0.10"
 PORT = 502
+
+
+DECIMALS = 2
+SAMPLETIME = 30  # seconds

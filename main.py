@@ -1,10 +1,20 @@
 from pymodbus.client import ModbusTcpClient
+from pymodbus.pdu.register_message import ReadInputRegistersResponse
+
 import unical
 import json
+import time
 
 
 if __name__ == "__main__":
 
-    client = unical.Unical(address='localhost', port=502)
+    caldaia = unical.Unical(address='192.168.1.121',
+                            port=502,
+                            registry_file='sensors.json')
 
-    client.run()
+    caldaia.run()
+
+
+
+
+
