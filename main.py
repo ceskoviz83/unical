@@ -2,8 +2,7 @@ from pymodbus.client import ModbusTcpClient
 from pymodbus.pdu.register_message import ReadInputRegistersResponse
 
 import unical
-import json
-import time
+import const
 
 
 if __name__ == "__main__":
