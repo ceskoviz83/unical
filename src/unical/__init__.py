@@ -1,11 +1,11 @@
 from datetime import datetime
 import json
 from os.path import dirname, join as joinpath
-import unical.register as registry
+import src.unical.register as registry
 from tabulate import tabulate
 import pymodbus.framer
 from pymodbus.client import ModbusTcpClient
-from unical.const import *
+from unical import const
 import time
 import os
 import pandas as pd
