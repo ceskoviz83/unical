@@ -1,26 +1,42 @@
-import copy
 import json
-import logging
-import os
-import threading
-import time
 from dataclasses import dataclass
-from datetime import datetime
-from logging.handlers import RotatingFileHandler
-from os.path import dirname, join as joinpath
-from threading import Thread
-
 import pandas as pd
-import pymodbus.framer
-import sqlalchemy
 from pymodbus.client import ModbusTcpClient
-from sqlalchemy import create_engine
-
-from unical import const, register
 from unical.register  import RegistryMap, Register
 
 from unical.modbus import Modbus
 from unical.database import DB
+
+from enum import StrEnum
+
+class DeviceType(StrEnum):
+    """Device types."""
+    TEMP_SENSOR = "temp_sensor"
+    OTHER = "other"
+    NOT_KNOWN = "unknown"
+
+
+@dataclass
+class Device:
+    """API device."""
+
+    device_id: int
+    device_unique_id: str
+    device_type: DeviceType
+    name: str
+    state: int | bool
+    value: int
+    unit: str
+
+    def get_device_name(self, device_id: str, device_type: DeviceType) -> str:
+        """Return the device name."""
+        if self.device_type == DeviceType.DOOR_SENSOR:
+            return f"DoorSensor{self.device_id}"
+        if self.device_type == DeviceType.TEMP_SENSOR:
+            return f"TempSensor{self.device_id}"
+        return f"OtherSensor{self.device_id}"
+
+
 
 class UnicalConfig():
     modbus: Modbus
@@ -99,3 +115,31 @@ class Unical:
 
     def read(self) -> RegistryMap | None:
         return self.modbus.read()
+
+    def get_devices(self) -> list[Register]:
+        """Get devices on api."""
+        DEV = self.data
+        res = [DEV[key] for key in DEV]
+        return res
+
+    @property
+    def controller_name(self) -> str:
+        """Return the name of the controller."""
+        return self.modbus.address.replace(".", "_")
+
+    def get_device_value(self,
+                         device_id: int) -> int |float |bool:
+
+        res : Register = self.data[device_id]
+        return res.value
+
+    def get_device_unique_id(self,
+                             device_id: str) -> str:
+        """Return a unique device id."""
+        res : Register = self.data[device_id]
+
+        if res.device_type == DeviceType.DOOR_SENSOR:
+            return f"{self.controller_name}_D{res.name}"
+        if res.device_type == DeviceType.TEMP_SENSOR:
+            return f"{self.controller_name}_T{res.name}"
+        return f"{self.controller_name}_Z{res.name}"

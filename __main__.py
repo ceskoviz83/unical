@@ -13,6 +13,12 @@ if __name__ == "__main__":
 
     data = caldaia.read()
 
+    devices = caldaia.get_devices()
+
+    print(caldaia.get_device_value(400))
+
+    l = caldaia.data.to_list()
+
     print(data)
 
     pass
