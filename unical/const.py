@@ -4,3 +4,5 @@ DB_FILE = "data.db"
 
 DECIMALS = 2
 SAMPLETIME = 30  # seconds
+
+CONFIG_DIR = 'config'
