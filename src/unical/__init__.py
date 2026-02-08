@@ -20,7 +20,7 @@ from unical import const, register
 from unical.register import RegistryMap, Register
 
 
-class ConnectionExeption(Exception):
+class ConncetionError(Exception):
     """Break out of the with statement"""
     pass
 
