@@ -3,7 +3,10 @@ from tabulate import tabulate
 from datetime import datetime
 import pandas as pd
 from collections.abc import MutableMapping
+from collections import UserList,UserDict
 from unical import const
+
+
 
 class RegistryT(Enum):
     INT = 0
@@ -11,6 +14,9 @@ class RegistryT(Enum):
     BITS = 2
     ASCII = 3
     WORD = 4
+
+
+
 
 class RegistryException(Exception):
     pass
@@ -65,6 +71,7 @@ class Register:
     scale: float = 1.0
     offset: float = 0.0
     bits = None
+    device_type : str = None
     timestamp : datetime = None
     taxonomy = None
 
@@ -136,21 +143,24 @@ class RegistryMap(Mapper[Register]):
 
     def __init__(self, d : list):
         super().__init__()
+
         for el in d:
             item = Register(el)
             self += item
 
 
-    def __setitem__(self, key : str | None, value : Register):
+    def __setitem__(self,
+                    key : str | None,
+                    value : Register):
         if key is None:
             key = value.address
         super().__setitem__(key,value)
+
 
     def __add__(self, other : Register):
         if self.__contains__(other.address):
             raise KeyError(other.address)
         self._d[other.address] = other
-
         return self
 
     def __str__(self):
@@ -164,6 +174,11 @@ class RegistryMap(Mapper[Register]):
 
         return tabulate(rows, headers=header, tablefmt="rst")
 
+    def to_list(self) -> UserList[Register]:
+        return UserList[Register]([self[key] for key in self])
+
+    def to_dict(self) -> UserDict[int,Register]:
+        return UserDict[int,Register]({int(key) : self[key].to_dict() for key in self})
 
     def to_dataframe(self):
         res = []
