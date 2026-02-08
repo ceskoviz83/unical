@@ -1,0 +1,86 @@
+[
+  {"name": "Firmware versione",
+    "address": 1,
+    "length" : 1,
+    "read" : true,
+    "write" : false,
+    "type": "INT"
+  },
+    {"name": "Firmware release",
+    "address": 2,
+    "length" : 1,
+    "read" : true,
+    "write" : false,
+    "type": "INT"
+  },
+    {"name": "Firmware sub-release",
+    "address": 3,
+    "length" : 1,
+    "read" : true,
+    "write" : false,
+    "type": "INT"
+  },
+  {"name": "Firmware mese/anno",
+    "address": 4,
+    "length" : 1,
+    "read" : true,
+    "write" : false,
+    "type": "WORD"
+  },
+  {"name": "Matricola",
+    "address": 80,
+    "length" : 17,
+    "read" : true,
+    "write" : false,
+    "type": "INT"
+  },
+  {"name": "Abilitazione scrittura stato macchina",
+    "address": 7201,
+    "length" : 1,
+    "read" : true,
+    "write" : true,
+    "type": "BYTE",
+    "bits": {"0":"Abilitazione stato macchina",
+      "1":"Abilitazione scrittura setpoint",
+      "2":"Abilitazione scrittura setpoint 2",
+      "3":"Abilitazione chiamata ambiente da remoto",
+      "4":"Abilitazione chiamata sanitaria da remoto",
+      "5":"Abilitazione ciclo anti legionella da remoto"}
+
+  },
+    {"name": "Valori lettura stato macchina",
+    "address": 200,
+    "length" : 1,
+    "read" : true,
+    "write" : false,
+    "type": "INT",
+    "taxonomy":{
+      "0": "stand by",
+      "1": "raffrescamento",
+      "2": "riscaldamento",
+      "4" : "solo sanitario",
+      "5" : "raffrescamento + sanitario",
+      "6" : "riscaldamento + sanitario"
+    }
+  },
+  {"name": "Impostazione stato macchina",
+    "address": 7200,
+    "length" : 1,
+    "read" : false,
+    "write" : true,
+    "type": "INT",
+    "taxonomy":{
+      "0": "stand by",
+      "1": "raffrescamento",
+      "2": "riscaldamento",
+      "4" : "solo sanitario",
+      "5" : "raffrescamento + sanitario",
+      "6" : "riscaldamento + sanitario"
+    }
+  }
+
+
+
+
+
+]

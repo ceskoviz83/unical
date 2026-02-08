@@ -1,0 +1,1 @@
+ Test-Netconnection -ComputerName homeassistant.local -Port 502

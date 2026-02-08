@@ -1,0 +1,1 @@
+ssh -L 8324:192.168.0.10:824 ha@homeassistant.local -N
