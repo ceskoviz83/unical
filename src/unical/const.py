@@ -1,7 +1,6 @@
-REGISTRY_FILE = "register.json"
-ADDRESS = "192.168.0.10"
-PORT = 502
 
+STORE_DB = True
+DB_FILE = "data.db"
 
 DECIMALS = 2
 SAMPLETIME = 30  # seconds

@@ -1,71 +1,270 @@
-from datetime import datetime
+import copy
 import json
-from os.path import dirname, join as joinpath
-import src.unical.register as registry
-from tabulate import tabulate
-import pymodbus.framer
-from pymodbus.client import ModbusTcpClient
-from unical import const
-import time
+import logging
 import os
+import threading
+import time
+from dataclasses import dataclass
+from datetime import datetime
+from logging.handlers import RotatingFileHandler
+from os.path import dirname, join as joinpath
+from threading import Thread
+
 import pandas as pd
+import pymodbus.framer
+import sqlalchemy
+from pymodbus.client import ModbusTcpClient
+from sqlalchemy import create_engine
+
+from unical import const, register
+from unical.register import RegistryMap, Register
+
 
 class ConnectionExeption(Exception):
     """Break out of the with statement"""
     pass
 
-class Unical():
 
-    RECONNECT_DELAY = 0.1
-    RECONNECT_DELAY_MAX = 300
-    TIMEOUT = 3
-    RETRIES = 3
+class ConfigClass():
+    LOG_DIR = "log"
+    LOGGER_NAME = None
+    DEBUG_LEVEL = logging.DEBUG
 
-    HISTORY_FILE = "history.csv"
+    def __init__(self, **kwargs):
 
-    def __init__(self, address,
-                 port = 502,
-                 device_id=1,
-                 registry_file: str = None,):
+        if not self.LOGGER_NAME:
+            raise NotImplementedError("LOGGER_NAME not defined")
 
-        self.ADDRESS = address
-        self.PORT = port
-        self.DEVICE_ID = device_id
-        self.FRAMER = pymodbus.FramerType.SOCKET
-        self.REGISTER : registry.RegistryMap | None = None
+        for key in kwargs:
+            setattr(self, key, kwargs[key])
 
-        if registry_file is not None:
-            self.REGISTER = self.registry_set(registry_file)
+        self.logger = self._set_logger()
 
-    def __str__(self):
-        res = []
+    @classmethod
+    def from_dict(cls, config):
+        instance = cls(**config)
+        return instance
 
-        for idx in self.REGISTER:
-            res += [self.REGISTER[idx].to_dict()]
+    def _set_logger(self):
+        LOG_PATH = os.path.join(os.getcwd(), self.LOG_DIR)
 
-        header = res[0].keys()
-        rows = [x.values() for x in res]
+        if not os.path.exists(LOG_PATH):
+            os.mkdir(LOG_PATH)
 
-        return tabulate(rows, headers=header, tablefmt="rst")
+        logger = logging.getLogger(self.LOGGER_NAME)
+        logger.setLevel(self.DEBUG_LEVEL)
 
-    def to_dataframe(self):
-        res = []
-        for idx in self.REGISTER:
-            res += [self.REGISTER[idx].to_dict()]
+        log_filename = os.path.join(LOG_PATH, self.LOGGER_NAME + ".log")
 
-        return pd.DataFrame(res)
+        fh = RotatingFileHandler(log_filename,
+                                 mode='a',
+                                 maxBytes=5 * 1024 * 1024,
+                                 backupCount=2,
+                                 encoding=None,
+                                 delay=0)
 
-    def to_series(self):
-        res = self.to_dataframe()
-        T = res['timestamp'].mean()
-        res = res[['name','value']]
-        res = res.set_index('name')
-        res =res['value'] # series
-        res['timestamp'] = T
+        fh.setLevel(self.DEBUG_LEVEL)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        fh.setFormatter(formatter)
+        logger.addHandler(fh)
+
+        return logger
+
+
+class Modbus(ConfigClass):
+    address: str
+    registry_file: str
+    port: int = 502
+    device_id: int = 1
+    timeout: int = 10
+    retries: int = 3
+    sample_time: int = const.SAMPLETIME
+    reconnect_delay: float = 0.1
+    reconnect_delay_max: int = 300
+    framer = pymodbus.FramerType.SOCKET
+
+    LOGGER_NAME = "modbus"
+
+    def __init__(self, **kwargs):
+
+        super().__init__(**kwargs)
+
+        self._registry: RegistryMap | None = None
+        if self.registry_file is not None:
+            self._registry = self.registry_set(self.registry_file)
+
+        self._data = None
+        self._data_lock = threading.Lock()
+        self.isrunning = False
+
+        self._polling_thread = None
+
+    @property
+    def data(self) -> RegistryMap | None:
+        self._data_lock.acquire()
+        res = copy.copy(self._data)
+        self._data_lock.release()
         return res
 
+    def _registry_read_thread(self):
+        self.logger.info("Starting continous reading")
+        self.logger.info(f"Sample time is {self.sample_time}")
+        while self.isrunning:
+            try:
+                self._data = self.read()
+                time.sleep(self.sample_time)
+            except ConnectionExeption as e:
+                self.logger.error(e)
+
+        self.logger.info("Stopping continous reading")
+
+    def read_polling(self):
+        # Run async function
+
+        self.isrunning = True
+
+        self.logger.info("Starting polling")
+
+        self._polling_thread = Thread(target=self._registry_read_thread, args=())
+
+        self._polling_thread.start()
+
+
+    def stop_polling(self):
+        self.isrunning = False
+        self._polling_thread.join()
+        self.logger.info("thread finished...exiting")
+
+
+    def registry_set(self, file):
+        DATAFILE = joinpath(dirname(__file__), file)
+        register_dict = None
+        with open(DATAFILE, encoding='utf-8') as f:
+            register_dict = json.load(f)
+        reg = register.RegistryMap(register_dict)
+        return reg
+
+    @property
+    def client(self) -> ModbusTcpClient:
+
+        if self.address is None:
+            return None
+
+        return ModbusTcpClient(framer=self.framer, host=self.address, port=self.port,
+                               reconnect_delay=self.reconnect_delay, reconnect_delay_max=self.reconnect_delay_max,
+                               timeout=self.timeout, retries=self.retries)
+
+    def _read_register(self, reg: register.Register, client: ModbusTcpClient = None, ):
+
+        if client is None:
+            with self.client as c:
+                result = c.read_holding_registers(address=reg.address, count=reg.length, device_id=self.device_id)
+
+                pass
+        else:
+            result = client.read_holding_registers(address=reg.address, count=reg.length, device_id=self.device_id)
+
+        return result
+
+    def read(self) -> RegistryMap | None:
+        timestamp = datetime.now()
+
+        size = len(self._registry)  # quantità massima di segnali da leggere
+        hit = 0  # segnali beccati
+
+        self._data_lock.acquire()
+
+        self._data = copy.copy(self._registry)  # copia
+
+        with self.client as c:
+            if not c.connected:
+                self.logger.error("Connection failed")
+                raise ConnectionExeption("Connection failed")
+
+            self.logger.info(f"Reading data from {self.address}")
+            for idx in self._registry:
+                # leggi e aggiorna il registro
+                reg = self._registry[idx]
+                result = self._read_register(reg=reg, client=c)
+
+                if result.isError():
+                    self.logger.error(f"Exception code: {result.exception_code}")
+                    '''
+                    01	Illegal Function	Device doesn't support this function
+                    02	Illegal Data Address	Address doesn't exist
+                    03	Illegal Data Value	Value out of range
+                    04	Slave Device Failure	Device error
+                    05	Acknowledge	Request accepted, processing
+                    06	Slave Device Busy	Try again later
+                    '''
+
+                if not result.isError():
+                    self._data[idx].timestamp = timestamp
+                    self._data[idx].raw = result.registers[0]
+
+                    hit += 1
+
+
+        self._data_lock.release()
+
+        elapsed =  datetime.now() - timestamp
+
+        self.logger.info(f"Read data from {self.address} - found {hit} over {size} - Elapsed_time = {elapsed.microseconds / 1000}ms")
+        return self._data
+
+
+@dataclass
+class DB(ConfigClass):
+    username: str = None
+    password: str = None
+    address: str = None
+    port: int = 502
+    database: str = None
+    driver: str = "sqlite+pysqlite"
+
+    LOGGER_NAME = "database"
+
+    @property
+    def engine(self) -> sqlalchemy.Engine | None:
+
+        if self.address is not None:
+            return create_engine(f"{self.driver}:///{self.address}:{self.port}")
+        else:
+            return None
+
+
+class UnicalConfig():
+    modbus: Modbus
+    db: DB = None
+
+    def __init__(self, **kwargs):
+
+        if "modbus" in kwargs:
+            self.modbus = Modbus.from_dict(kwargs["modbus"])
+        if "db" in kwargs:
+            self.db = DB.from_dict(kwargs["db"])
+
+        if not isinstance(self.modbus, Modbus):
+            raise TypeError("modbus is not a instance of Modbus")
+        if self.db:
+            if not isinstance(self.db, DB):
+                raise TypeError("db is not a instance of DB")
+
+    @classmethod
+    def from_json(cls, filename):
+        instance: cls | None = None
+        with open(filename, encoding='utf-8') as f:
+            data = json.load(f)
+            instance = cls(**data)
+        return instance
+
+    @property
+    def client(self) -> ModbusTcpClient:
+        return self.modbus.client
+
+    '''
     def save_history(self):
-        tick = self.to_series()
+        tick = self.modbus._registry.to_series()
         tick = pd.DataFrame(tick).T
 
         if os.path.exists(self.HISTORY_FILE):
@@ -88,85 +287,49 @@ class Unical():
     def show_history(self) -> None:
         hist = self.get_history()
         print(hist)
+        
+    '''
 
-    def registry_set(self,file):
-        DATAFILE = joinpath(dirname(__file__), file)
-        register_dict = None
-        with open(DATAFILE, encoding='utf-8') as f:
-            register_dict = json.load(f)
-        self.REGISTER = registry.RegistryMap(register_dict)
-        return self.REGISTER
+
+class Unical:
+
+    def __init__(self, modbus_config: Modbus, db_config: DB = None):
+        if not isinstance(modbus_config, Modbus):
+            raise TypeError("modbus_config is not a instance of Modbus")
+
+        self.modbus = modbus_config
+        self.db = db_config
+
+        pass
+
+    @classmethod
+    def from_config(cls, config: UnicalConfig):
+        return cls(modbus_config=config.modbus, db_config=config.db)
+
+    @classmethod
+    def from_json(cls, json_filename: str):
+        config = UnicalConfig.from_json(json_filename)
+        return cls.from_config(config)
 
     @property
-    def client(self):
-        return ModbusTcpClient( framer=self.FRAMER,
-                                host=self.ADDRESS,
-                                port = self.PORT,
-                                reconnect_delay = self.RECONNECT_DELAY,
-                                reconnect_delay_max = self.RECONNECT_DELAY_MAX,
-                                timeout = self.TIMEOUT,
-                                retries = self.RETRIES)
+    def registry(self) -> register.RegistryMap | None:
+        return self.modbus._registry
 
-    def read(self,
-             reg: registry.Register,
-             client : ModbusTcpClient = None,
-             ) :
+    @property
+    def data(self) -> RegistryMap | None:
+        return self.modbus.data
 
-        if client is None:
-            with self.client as c:
-                result = c.read_holding_registers(address=reg.address,
-                                                     count = reg.length,
-                                                     device_id=self.DEVICE_ID)
+    @property
+    def df(self) -> pd.DataFrame:
+        res = self.modbus.data.to_series()
+        res = pd.DataFrame(res).T
+        return res
 
-                pass
-        else:
-            result = client.read_holding_registers(address=reg.address,
-                                              count=reg.length,
-                                              device_id=self.DEVICE_ID)
+    def read_polling(self):
+        self.modbus.read_polling()
 
-        return result
+    def stop(self):
+        self.modbus.stop_polling()
 
-    def update(self):
-        """Basic async read operation."""
-
-        timestamp = datetime.now()
-        with self.client as c:
-            if not c.connected:
-                raise ConnectionExeption("Connection failed")
-            for idx in self.REGISTER:
-                # leggi e aggiorna il registro
-                reg = self.REGISTER[idx]
-                if reg.read:
-                    result = self.read(reg=reg,
-                                       client=c)
-
-                    if result.isError():
-                        print(f"Exception code: {result.exception_code}")
-                        '''
-                        01	Illegal Function	Device doesn't support this function
-                        02	Illegal Data Address	Address doesn't exist
-                        03	Illegal Data Value	Value out of range
-                        04	Slave Device Failure	Device error
-                        05	Acknowledge	Request accepted, processing
-                        06	Slave Device Busy	Try again later
-                        '''
-                    if not result.isError():
-                        reg.timestamp = timestamp
-                        reg.raw = result.registers[0]
-
-            return result.registers
-
-
-
-    def run(self):
-        # Run async function
-        while(1):
-            try:
-                data = self.update()
-                print(self.to_dataframe())
-                self.save_history()
-            except ConnectionExeption as e:
-                print(e)
-
-            time.sleep(const.SAMPLETIME)
-
+    def read(self) -> RegistryMap | None:
+        return self.modbus.read()

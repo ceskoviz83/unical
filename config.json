@@ -1,0 +1,10 @@
+{
+  "modbus": {
+    "address": "homeassistant.local",
+    "port": 502,
+    "registry_file" : "sensors.json",
+    "device_id": 1,
+    "sample_time": 1
+
+  }
+}

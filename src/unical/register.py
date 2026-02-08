@@ -1,9 +1,9 @@
 from enum import Enum
-
+from tabulate import tabulate
 from datetime import datetime
+import pandas as pd
 from collections.abc import MutableMapping
-from src.unical import const
-
+from unical import const
 
 class RegistryT(Enum):
     INT = 0
@@ -76,7 +76,13 @@ class Register:
         return
 
     def __repr__(self):
-        return str(self.to_dict())
+
+        res = ""
+
+        for key in self.to_dict():
+            res += f"{key}: {self.to_dict()[key]} - "
+
+        return res
 
     def to_dict(self) -> dict:
         f = {'timestamp': self.timestamp,
@@ -146,3 +152,31 @@ class RegistryMap(Mapper[Register]):
         self._d[other.address] = other
 
         return self
+
+    def __str__(self):
+        res = []
+
+        for idx in self:
+            res += [self[idx].to_dict()]
+
+        header = res[0].keys()
+        rows = [x.values() for x in res]
+
+        return tabulate(rows, headers=header, tablefmt="rst")
+
+
+    def to_dataframe(self):
+        res = []
+        for idx in self.register:
+            res += [self.register[idx].to_dict()]
+
+        return pd.DataFrame(res)
+
+    def to_series(self):
+        res = self.to_dataframe()
+        T = res['timestamp'].mean()
+        res = res[['name','value']]
+        res = res.set_index('name')
+        res =res['value'] # series
+        res['timestamp'] = T
+        return res
