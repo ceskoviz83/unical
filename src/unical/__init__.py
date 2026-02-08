@@ -99,6 +99,14 @@ class Modbus(ConfigClass):
 
         self._polling_thread = None
 
+    def check_connection(self) -> bool:
+        res = True
+        with self.client as c:
+            if not c.connected:
+                res = False
+
+        return res
+
     @property
     def data(self) -> RegistryMap | None:
         self._data_lock.acquire()
@@ -293,7 +301,9 @@ class UnicalConfig():
 
 class Unical:
 
-    def __init__(self, modbus_config: Modbus, db_config: DB = None):
+    def __init__(self,
+                 modbus_config: Modbus,
+                 db_config: DB = None):
         if not isinstance(modbus_config, Modbus):
             raise TypeError("modbus_config is not a instance of Modbus")
 

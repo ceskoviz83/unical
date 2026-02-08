@@ -5,15 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d8194497-7984-4973-b4df-200f80cd2dfa" name="Changes" comment="mossi tutti i file">
-      <change afterPath="$PROJECT_DIR$/config.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/unical/data.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/unical.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/unical.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/unical/__main__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/unical/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/unical/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/unical/const.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/unical/const.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/unical/register.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/unical/register.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -49,8 +42,8 @@
 }</component>
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/ceskoviz83/unical.git&quot;,
-    &quot;accountId&quot;: &quot;14f485f2-cac4-4fff-907d-79136c5a67f4&quot;
+    &quot;url&quot;: &quot;https://github.com/ceskoviz83/unical&quot;,
+    &quot;accountId&quot;: &quot;1320b560-cf9a-4842-a68d-95473e3dfaca&quot;
   }
 }</component>
   <component name="ProjectColorInfo">{
@@ -64,29 +57,30 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;Python.__init__.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.__main__.executor&quot;: &quot;Run&quot;,
-    &quot;Python.main (1).executor&quot;: &quot;Run&quot;,
-    &quot;Python.main (2).executor&quot;: &quot;Run&quot;,
-    &quot;Python.main (3).executor&quot;: &quot;Run&quot;,
-    &quot;Python.main.executor&quot;: &quot;Debug&quot;,
-    &quot;Python.registry.executor&quot;: &quot;Run&quot;,
-    &quot;Python.unical.executor&quot;: &quot;Run&quot;,
-    &quot;Python.unical_remote.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;ai.playground.ignore.import.keys.banner.in.settings&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;web.server&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "Python.__init__.executor": "Debug",
+    "Python.__main__.executor": "Run",
+    "Python.main (1).executor": "Run",
+    "Python.main (2).executor": "Run",
+    "Python.main (3).executor": "Run",
+    "Python.main.executor": "Debug",
+    "Python.registry.executor": "Run",
+    "Python.unical.executor": "Run",
+    "Python.unical_remote.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "ai.playground.ignore.import.keys.banner.in.settings": "true",
+    "git-widget-placeholder": "master",
+    "last_opened_file_path": "D:/Users/franc/PythonProject/unical",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "web.server",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="PyConsoleOptionsProvider">
     <option name="myPythonConsoleState">
       <console-settings module-name="unical" is-module-sdk="true">
@@ -219,6 +213,9 @@
       <workItem from="1770494727553" duration="4533000" />
       <workItem from="1770508815085" duration="3516000" />
       <workItem from="1770539256328" duration="2217000" />
+      <workItem from="1770542705050" duration="1162000" />
+      <workItem from="1770544037550" duration="862000" />
+      <workItem from="1770547718558" duration="276000" />
     </task>
     <task id="LOCAL-00001" summary="primo commit">
       <option name="closed" value="true" />
@@ -260,7 +257,15 @@
       <option name="project" value="LOCAL" />
       <updated>1770327047941</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="mossi tutti i file">
+      <option name="closed" value="true" />
+      <created>1770542757082</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1770542757082</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
