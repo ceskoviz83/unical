@@ -1,11 +1,13 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="Unical Communication Library",
+    name="unical",
     version="0.1",
-    packages=find_packages(),
+    package_dir={"": "src"},  # directory where packages are located
+    packages=find_packages(where="src"),  # find all packages and list them
     author="ceskoviz83",
-    description="Breve descrizione del pacchetto",
+    python_requires=">=3.10", # compatible python version
+    description="Unical Modbus TCP - Communication Library",
     install_requires=[
         # Elenca qui le dipendenze, es: 'requests>=2.25.1'
             "numpy==2.4.2",

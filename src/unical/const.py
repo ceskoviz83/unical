@@ -10,5 +10,5 @@ SAMPLETIME = 30  # seconds
 
 CONFIG_DIR = 'config'
 
-UNICAL_PATH = Path(__file__).parent.parent  # directory del package
+UNICAL_PATH = os.getcwd()  # Path(__file__).parent.parent  # directory del package
 CONFIG_ABS_PATH = os.path.join(UNICAL_PATH, CONFIG_DIR)

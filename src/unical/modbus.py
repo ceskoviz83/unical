@@ -7,14 +7,12 @@ from datetime import datetime
 import copy
 import time
 
-
-
-from .register import RegistryMap
 from pymodbus.client import ModbusTcpClient
 
-from . import register
+from .register import RegistryMap
+from . import register , const
 from .common import ConfigClass
-from . import const
+
 
 class ModbusConnectionError(Exception):
     pass
@@ -128,8 +126,8 @@ class Modbus(ConfigClass):
         register_list = []
 
         for file in files:
-            DATAFILE = os.path.join(const.CONFIG_ABS_PATH, file)
-            with open(DATAFILE, encoding='utf-8') as f:
+            #DATAFILE = os.path.join(const.CONFIG_ABS_PATH, file)
+            with open(file, encoding='utf-8') as f:
                 register_list += json.load(f) # append list
 
         reg = register.RegistryMap(register_list)
@@ -151,7 +149,7 @@ class Modbus(ConfigClass):
 
         return result
 
-    def read(self) -> RegistryMap | None:
+    def read(self, id = None) -> RegistryMap | None:
         timestamp = datetime.now()
 
         size = len(self._registry)  # quantità massima di segnali da leggere
@@ -168,25 +166,24 @@ class Modbus(ConfigClass):
 
             self.logger.info(f"Reading data from {self.address}")
 
-            for idx in self._registry:
-                # leggi e aggiorna il registro
-                reg = self._registry[idx]
-                result = self._read_register(reg=reg, client=c)
-
-                if result.isError():
-                    self.logger.error(f"Exception code: {result.exception_code}")
-                    '''
-                    01	Illegal Function	Device doesn't support this function
-                    02	Illegal Data Address	Address doesn't exist
-                    03	Illegal Data Value	Value out of range
-                    04	Slave Device Failure	Device error
-                    05	Acknowledge	Request accepted, processing
-                    06	Slave Device Busy	Try again later
-                    '''
-
+            if id is not None:
+                result = self._read_register(reg=self._registry[id],
+                                             client=c)
                 if not result.isError():
-                    self._data[idx].timestamp = timestamp
-                    self._data[idx].raw = result.registers[0]
+                    self._data[id].timestamp = datetime.now()
+                    self._data[id].raw = result.registers[0]
+
+            else:
+                for idx in self._registry:
+                    # leggi e aggiorna il registro
+                    reg = self._registry[idx]
+
+                    result = self._read_register(reg=reg,
+                                                 client=c)
+
+                    if not result.isError():
+                        self._data[idx].timestamp = datetime.now()
+                        self._data[idx].raw = result.registers[0]
 
                     hit += 1
 
@@ -197,4 +194,6 @@ class Modbus(ConfigClass):
 
         self.logger.info(f"Read data from {self.address} - found {hit} over {size} - Elapsed_time = {elapsed.microseconds / 1000}ms")
         return self._data
+
+
 

@@ -66,7 +66,8 @@ class Register:
     scale: float = 1.0
     offset: float = 0.0
     bits = None
-    device_type : str = None
+    entity_type : str = None
+    device: str = None
     timestamp : datetime = None
     taxonomy = None
 
@@ -76,6 +77,8 @@ class Register:
             if hasattr(self,key):
                 self.__setattr__(key,value)
         return
+
+
 
     def __repr__(self):
 
