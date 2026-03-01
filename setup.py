@@ -10,10 +10,10 @@ setup(
     description="Unical Modbus TCP - Communication Library",
     install_requires=[
         # Elenca qui le dipendenze, es: 'requests>=2.25.1'
-            "numpy==2.4.2",
-            "pandas==2.3.3",
+            "numpy>=2.4.2",
+            "pandas>=2.3.3",
             "pandas-stubs==2.3.3.260113",
-            "pymodbus==3.11.4",
+            "pymodbus>=3.11",
             "python-dateutil==2.9.0.post0",
             "pytz==2025.2",
             "six==1.17.0",
