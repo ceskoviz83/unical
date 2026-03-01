@@ -107,7 +107,7 @@
     "read": true,
     "write": false,
     "type": "INT",
-    "device_type": "temp_sensor"
+    "device_type": "press_sensor"
   },
   {
     "name": "Circuito Bassa pressione",
@@ -118,7 +118,7 @@
     "read": true,
     "write": false,
     "type": "INT",
-    "device_type": "temp_sensor"
+    "device_type": "press_sensor"
   },
   {
     "name": "Ventilatore di condensazione",
@@ -129,7 +129,7 @@
     "read": true,
     "write": false,
     "type": "INT",
-    "device_type": "temp_sensor"
+    "device_type": "percent_sensor"
   },
   {
     "name": "Pompa circolatore",
@@ -140,7 +140,7 @@
     "read": true,
     "write": false,
     "type": "INT",
-    "device_type": "temp_sensor"
+    "device_type": "percent_sensor"
   },
   {
     "name": "Setpoint Raffrescamento",
@@ -184,6 +184,6 @@
     "read": true,
     "write": false,
     "type": "INT",
-    "device_type": "temp_sensor"
+    "device_type": "duration_sensor"
   }
 ]

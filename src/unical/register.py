@@ -4,9 +4,7 @@ from datetime import datetime
 import pandas as pd
 from collections.abc import MutableMapping
 from collections import UserList,UserDict
-from unical import const
-
-
+from . import const
 
 class RegistryT(Enum):
     INT = 0
@@ -14,9 +12,6 @@ class RegistryT(Enum):
     BITS = 2
     ASCII = 3
     WORD = 4
-
-
-
 
 class RegistryException(Exception):
     pass

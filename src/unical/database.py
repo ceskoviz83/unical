@@ -2,8 +2,8 @@
 import sqlalchemy
 from dataclasses import dataclass
 
-from unical.common import ConfigClass
-from unical.modbus import Modbus
+from .common import ConfigClass
+from .modbus import Modbus
 
 
 @dataclass

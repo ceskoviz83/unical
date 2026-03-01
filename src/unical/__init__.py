@@ -2,41 +2,21 @@ import json
 from dataclasses import dataclass
 import pandas as pd
 from pymodbus.client import ModbusTcpClient
-from unical.register  import RegistryMap, Register
 
-from unical.modbus import Modbus
-from unical.database import DB
 
+from .modbus import Modbus
+from .database import DB
+from .register  import RegistryMap, Register
 from enum import StrEnum
 
 class DeviceType(StrEnum):
     """Device types."""
     TEMP_SENSOR = "temp_sensor"
+    PRES_SENSOR = "press_sensor"
+    PERCENT_SENSOR = "percent_sensor"
+    DURATION_SENSOR = "duration_sensor"
     OTHER = "other"
     NOT_KNOWN = "unknown"
-
-
-@dataclass
-class Device:
-    """API device."""
-
-    device_id: int
-    device_unique_id: str
-    device_type: DeviceType
-    name: str
-    state: int | bool
-    value: int
-    unit: str
-
-    def get_device_name(self, device_id: str, device_type: DeviceType) -> str:
-        """Return the device name."""
-        if self.device_type == DeviceType.DOOR_SENSOR:
-            return f"DoorSensor{self.device_id}"
-        if self.device_type == DeviceType.TEMP_SENSOR:
-            return f"TempSensor{self.device_id}"
-        return f"OtherSensor{self.device_id}"
-
-
 
 class UnicalConfig():
     modbus: Modbus
@@ -70,23 +50,29 @@ class UnicalConfig():
 
 class Unical:
 
+    class ConnectionException(Exception):
+        pass
+
     def __init__(self,
-                 modbus_config: Modbus,
+                 modbus_client: Modbus,
                  db_config: DB = None):
-        if not isinstance(modbus_config, Modbus):
+        if not isinstance(modbus_client, Modbus):
             raise TypeError("modbus_config is not a instance of Modbus")
 
-        self.modbus :Modbus= modbus_config
+        self.modbus : Modbus= modbus_client
         self.db :DB  = db_config
         pass
 
-    def connect(self) -> bool:
-        self.modbus.check_connection() # connect or raise ConnectionExeption
+    async def check_connection(self) -> bool:
+        try:
+            self.modbus.check_connection() # connect or raise ConnectionExeption
+        except Unical.ConnectionException as e:
+            raise e
         return True
 
     @classmethod
     def from_config(cls, config: UnicalConfig):
-        return cls(modbus_config=config.modbus, db_config=config.db)
+        return cls(modbus_client=config.modbus, db_config=config.db)
 
     @classmethod
     def from_json(cls, json_filename: str):
@@ -94,7 +80,7 @@ class Unical:
         return cls.from_config(config)
 
     @property
-    def registry(self) -> register.RegistryMap | None:
+    def registry(self) -> RegistryMap | None:
         return self.modbus._registry
 
     @property
@@ -137,9 +123,8 @@ class Unical:
                              device_id: str) -> str:
         """Return a unique device id."""
         res : Register = self.data[device_id]
+        return f"{self.controller_name}_{res.device_type}_{res.name}"
 
-        if res.device_type == DeviceType.DOOR_SENSOR:
-            return f"{self.controller_name}_D{res.name}"
-        if res.device_type == DeviceType.TEMP_SENSOR:
-            return f"{self.controller_name}_T{res.name}"
-        return f"{self.controller_name}_Z{res.name}"
+    
+    def get_devices_by_type(self, type : DeviceType) -> list[Register]:
+        return [self.registry[id] for id in self.registry if self.registry[id].type ==  type ]

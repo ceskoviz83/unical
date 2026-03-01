@@ -1,10 +1,10 @@
-from unical import Unical
+from src import Unical
 import time
 
 if __name__ == "__main__":
     caldaia = Unical.from_json("config/config.json")
 
-    caldaia.connect()
+    caldaia.check_connection()
     #caldaia.read_polling()
 
     #time.sleep(5)

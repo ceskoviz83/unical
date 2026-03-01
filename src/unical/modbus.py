@@ -2,16 +2,25 @@ import os.path
 
 import pymodbus
 import json
-import threading
+from threading import Thread,Lock
 from datetime import datetime
 import copy
+import time
 
-from unical.register import RegistryMap
+
+
+from .register import RegistryMap
 from pymodbus.client import ModbusTcpClient
 
-from unical import register
-from unical.common import ConfigClass
-from unical import const
+from . import register
+from .common import ConfigClass
+from . import const
+
+class ModbusConnectionError(Exception):
+    pass
+
+class ModbusReadError(Exception):
+    pass
 
 class Modbus(ConfigClass):
     address: str
@@ -27,6 +36,7 @@ class Modbus(ConfigClass):
 
     LOGGER_NAME = "modbus"
 
+
     def __init__(self, **kwargs):
 
         super().__init__(**kwargs)
@@ -36,18 +46,19 @@ class Modbus(ConfigClass):
             self._registry = self.registry_set(self.registry_file)
 
         self._data = None
-        self._data_lock = threading.Lock()
+        self._data_lock = Lock()
         self.isrunning = False
 
         self._polling_thread = None
 
-    def check_connection(self) -> bool:
-        res = True
-        with self.client as c:
-            if not c.connected:
-                res = False
-                raise ConnectionExeption("Connection failed")
-        return res
+        self._client : ModbusTcpClient = ModbusTcpClient(framer=self.framer,
+                                       host=self.address,
+                                       port=self.port,
+                                       reconnect_delay=self.reconnect_delay,
+                                       reconnect_delay_max=self.reconnect_delay_max,
+                                       timeout=self.timeout,
+                                       retries=self.retries)
+
 
     @property
     def data(self) -> RegistryMap | None:
@@ -56,6 +67,26 @@ class Modbus(ConfigClass):
         self._data_lock.release()
         return res
 
+    def connect(self) -> bool:
+
+        return self._client.connect()
+
+    def close(self):
+        return self._client.close()
+
+    @property
+    def connected(self):
+        return self._client.connected
+
+    def check_connection(self) -> bool:
+        res = True
+        with self._client as c: # prova ad aprire la soket
+            if not c.connected:
+                res = False
+                raise ModbusConnectionError(f"Connection to {self.address}:{self.port} failed")
+        return res
+
+
     def _registry_read_thread(self):
         self.logger.info("Starting continous reading")
         self.logger.info(f"Sample time is {self.sample_time}")
@@ -63,7 +94,7 @@ class Modbus(ConfigClass):
             try:
                 self._data = self.read()
                 time.sleep(self.sample_time)
-            except ConnectionExeption as e:
+            except ModbusReadError as e:
                 self.logger.error(e)
 
         self.logger.info("Stopping continous reading")
@@ -86,25 +117,29 @@ class Modbus(ConfigClass):
         self.logger.info("thread finished...exiting")
 
 
-    def registry_set(self, file):
-        DATAFILE = os.path.join(os.getcwd(), const.CONFIG_DIR , file)
-        register_dict = None
-        with open(DATAFILE, encoding='utf-8') as f:
-            register_dict = json.load(f)
-        reg = register.RegistryMap(register_dict)
+    def registry_set(self, files : str | list[str]):
+
+        if isinstance(files, str):
+            files = [files]
+
+        if not isinstance(files, list):
+            raise TypeError("files must be a list of string or string")
+
+        register_list = []
+
+        for file in files:
+            DATAFILE = os.path.join(const.CONFIG_ABS_PATH, file)
+            with open(DATAFILE, encoding='utf-8') as f:
+                register_list += json.load(f) # append list
+
+        reg = register.RegistryMap(register_list)
+
         return reg
 
-    @property
-    def client(self) -> ModbusTcpClient:
 
-        if self.address is None:
-            return None
-
-        return ModbusTcpClient(framer=self.framer, host=self.address, port=self.port,
-                               reconnect_delay=self.reconnect_delay, reconnect_delay_max=self.reconnect_delay_max,
-                               timeout=self.timeout, retries=self.retries)
-
-    def _read_register(self, reg: register.Register, client: ModbusTcpClient = None, ):
+    def _read_register(self,
+                       reg: register.Register,
+                       client: ModbusTcpClient = None, ):
 
         if client is None:
             with self.client as c:
@@ -126,12 +161,13 @@ class Modbus(ConfigClass):
 
         self._data = copy.copy(self._registry)  # copia
 
-        with self.client as c:
+        with self._client as c:
             if not c.connected:
                 self.logger.error("Connection failed")
-                raise ConnectionExeption("Connection failed")
+                raise ModbusConnectionError(f"Modbus connection is down")
 
             self.logger.info(f"Reading data from {self.address}")
+
             for idx in self._registry:
                 # leggi e aggiorna il registro
                 reg = self._registry[idx]
