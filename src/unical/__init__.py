@@ -6,7 +6,6 @@ import logging
 import pandas as pd
 from pymodbus.client import ModbusTcpClient
 
-from core.homeassistant.util import logging
 from .modbus import Modbus
 from .database import DB
 from .register  import RegistryMap, Register
