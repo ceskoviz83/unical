@@ -1,13 +1,53 @@
 [
-  {
-    "name": "Digital Inputs",
-    "address": 10,
-    "length": 1,
-    "read": true,
-    "write": false,
-    "type": "INT",
-    "entity_type": "status",
-    "device": "status",
-    "bits": [["Flow switch - ID 1","ID2", "On/Off - ID3" ]]
-  }
-  ]
+    {
+        "name": "Flow switch",
+        "address": 10,
+        "bitmask": [
+            0
+        ],
+        "length": 1,
+        "read": true,
+        "write": false,
+        "type": "INT",
+        "entity_type": "status",
+        "device": "status",
+        "taxonomy": {
+            "0": "Off",
+            "1": "On"
+        }
+    },
+    {
+        "name": "ID2",
+        "address": 10,
+        "bitmask": [
+            1
+        ],
+        "length": 1,
+        "read": true,
+        "write": false,
+        "type": "INT",
+        "entity_type": "status",
+        "device": "status",
+        "taxonomy": {
+            "0": "Off",
+            "1": "On"
+        }
+    },
+    {
+        "name": "On/Off",
+        "address": 10,
+        "bitmask": [
+            2
+        ],
+        "length": 1,
+        "read": true,
+        "write": false,
+        "type": "INT",
+        "entity_type": "status",
+        "device": "status",
+        "taxonomy": {
+            "0": "Off",
+            "1": "On"
+        }
+    }
+]

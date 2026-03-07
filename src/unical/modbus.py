@@ -139,7 +139,13 @@ class Modbus(ConfigClass):
                        reg: register.Register,
                        client: ModbusTcpClient = None, ):
 
+        if isinstance(reg,list):
+            pass
+
         if reg.length > 1:
+            pass
+
+        if reg.has_bitmask:
             pass
 
         if client is None:
@@ -178,7 +184,13 @@ class Modbus(ConfigClass):
             else:
                 for idx in self._registry:
                     # leggi e aggiorna il registro
+
+                    if "." in idx:
+                        pass
+
                     reg = self._registry[idx]
+
+
 
                     result = self._read_register(reg=reg,
                                                  client=c)
