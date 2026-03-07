@@ -82,7 +82,7 @@ class Unical:
         self.db :DB  = db_config
         pass
 
-    async def check_connection(self) -> bool:
+    def check_connection(self) -> bool:
         try:
             self.modbus.check_connection() # connect or raise ConnectionExeption
         except Unical.ConnectionException as e:

@@ -1,0 +1,13 @@
+[
+  {
+    "name": "Digital Inputs",
+    "address": 10,
+    "length": 1,
+    "read": true,
+    "write": false,
+    "type": "INT",
+    "entity_type": "status",
+    "device": "status",
+    "bits": [["Flow switch - ID 1","ID2", "On/Off - ID3" ]]
+  }
+  ]

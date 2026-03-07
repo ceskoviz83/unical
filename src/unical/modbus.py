@@ -139,10 +139,12 @@ class Modbus(ConfigClass):
                        reg: register.Register,
                        client: ModbusTcpClient = None, ):
 
+        if reg.length > 1:
+            pass
+
         if client is None:
             with self.client as c:
                 result = c.read_holding_registers(address=reg.address, count=reg.length, device_id=self.device_id)
-
                 pass
         else:
             result = client.read_holding_registers(address=reg.address, count=reg.length, device_id=self.device_id)
@@ -183,7 +185,11 @@ class Modbus(ConfigClass):
 
                     if not result.isError():
                         self._data[idx].timestamp = datetime.now()
-                        self._data[idx].raw = result.registers[0]
+
+                        if reg.length == 1:
+                            self._data[idx].raw = result.registers[0]
+                        else:
+                            self._data[idx].raw = result.registers
 
                     hit += 1
 

@@ -61,24 +61,25 @@ class Register:
     read : bool = False
     write : bool = False
     type : str = None
-    raw  = None
+    raw : int|list = None
     unit: str = None
-    scale: float = 1.0
-    offset: float = 0.0
-    bits = None
+    scale: float = None
+    offset: float = 0
     entity_type : str = None
     device: str = None
     timestamp : datetime = None
-    taxonomy = None
+    taxonomy :dict = None
+    bits: dict = None
 
     def __init__(self,d : dict):
 
         for key,value in d.items():
             if hasattr(self,key):
                 self.__setattr__(key,value)
+        if self.length == 0 :
+            raise RegistryException(f"Register {self.name} has no length")
+
         return
-
-
 
     def __repr__(self):
 
@@ -86,7 +87,6 @@ class Register:
 
         for key in self.to_dict():
             res += f"{key}: {self.to_dict()[key]} - "
-
         return res
 
     def to_dict(self) -> dict:
@@ -95,9 +95,8 @@ class Register:
              'name': self.name,
              'raw': self.raw,
              'value': self.value,
-             'unit': self.unit}
-        if self.description:
-            f['description'] = self.description
+             'unit': self.unit,
+             'description': self.description,}
 
         return f
 
@@ -109,19 +108,20 @@ class Register:
         return True if self.taxonomy is not None else False
 
     @property
+    def has_bits(self):
+        return True if self.bits is not None else False
+
+    @property
     def description(self) -> list:
         res = []
         if self.raw is None:
             return None
-        if self.bits is not None:
-            res = []
-
-            for key, val in self.bits.items():
-                bit = int(key)
-
-                if (self.raw >> bit) & 1:
-                    res.append(val)
-            return res
+        if self.has_bits:
+            res = {}
+            for offset in range(self.length):
+                word = self.bits[offset]
+                for i, desc in enumerate(word):
+                    res[desc] = True if (self.raw >> i) & 1 == 1 else False
         elif self.taxonomy is not None:
             if str(self.raw) in self.taxonomy.keys():
                 res.append(self.taxonomy[str(self.raw)])
@@ -130,10 +130,13 @@ class Register:
 
         return res
 
+
+
     @property
     def value(self):
         res = self.raw
-        if self.type == "INT":
+
+        if self.scale is not None:
             res = round(self.raw * self.scale + self.offset, ndigits=const.DECIMALS)
         return res
 
