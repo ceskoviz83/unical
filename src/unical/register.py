@@ -61,24 +61,26 @@ class Register:
     read : bool = False
     write : bool = False
     type : str = None
-    raw  = None
+    raw : int|list = None
     unit: str = None
-    scale: float = 1.0
-    offset: float = 0.0
-    bits = None
+    scale: float = None
+    offset: float = 0
     entity_type : str = None
     device: str = None
     timestamp : datetime = None
-    taxonomy = None
+    taxonomy :dict = None
+    bitmask : list = None
+    bits: dict = None
 
     def __init__(self,d : dict):
 
         for key,value in d.items():
             if hasattr(self,key):
                 self.__setattr__(key,value)
+        if self.length == 0 :
+            raise RegistryException(f"Register {self.name} has no length")
+
         return
-
-
 
     def __repr__(self):
 
@@ -86,18 +88,20 @@ class Register:
 
         for key in self.to_dict():
             res += f"{key}: {self.to_dict()[key]} - "
-
         return res
 
     def to_dict(self) -> dict:
+
         f = {'timestamp': self.timestamp,
-             'address': self.address,
+             'address': str(self.address),
              'name': self.name,
              'raw': self.raw,
              'value': self.value,
-             'unit': self.unit}
-        if self.description:
-            f['description'] = self.description
+             'unit': self.unit,
+             'description': self.description,}
+
+        if self.has_bitmask:
+            f['address'] += "." + str(min(self.bitmask))
 
         return f
 
@@ -109,22 +113,27 @@ class Register:
         return True if self.taxonomy is not None else False
 
     @property
+    def has_bitmask(self):
+        return True if self.bitmask is not None else False
+
+    @property
+    def has_bits(self):
+        return True if self.bits is not None else False
+
+    @property
     def description(self) -> list:
         res = []
-        if self.raw is None:
+        if self.value is None:
             return None
-        if self.bits is not None:
-            res = []
-
-            for key, val in self.bits.items():
-                bit = int(key)
-
-                if (self.raw >> bit) & 1:
-                    res.append(val)
-            return res
+        if self.has_bits:
+            res = {}
+            for offset in range(self.length):
+                word = self.bits[offset]
+                for i, desc in enumerate(word):
+                    res[desc] = True if (self.value >> i) & 1 == 1 else False
         elif self.taxonomy is not None:
-            if str(self.raw) in self.taxonomy.keys():
-                res.append(self.taxonomy[str(self.raw)])
+            if str(self.value) in self.taxonomy.keys():
+                res.append(self.taxonomy[str(self.value)])
         else :
             res =None
 
@@ -133,7 +142,18 @@ class Register:
     @property
     def value(self):
         res = self.raw
-        if self.type == "INT":
+
+        if self.has_bitmask:
+            mask = 0
+            shift = min(self.bitmask)
+            for bit in self.bitmask:
+                mask += 2**bit
+
+            res &= mask  # and dei numeri
+
+            res >>= shift  # shifta
+
+        if self.scale is not None:
             res = round(self.raw * self.scale + self.offset, ndigits=const.DECIMALS)
         return res
 
@@ -146,19 +166,43 @@ class RegistryMap(Mapper[Register]):
             item = Register(el)
             self += item
 
+    def __getitem__(self, key: str|int) -> list | Register:
 
+        if isinstance(key,int):
+            key = str(key)
+
+        res = []
+
+        # restituisci l'elenco delle chiavi
+        addresses = [s for s in self._d.keys() if key + '.' in s]
+
+        if len(addresses) == 0:
+            res = self._d[key]
+        elif "." in key:
+            res = [self._d[addr] for addr in self._d.keys() if str(key + '.') in addr]
+
+        return res
     def __setitem__(self,
                     key : str | None,
-                    value : Register):
+                    reg : Register):
         if key is None:
-            key = value.address
-        super().__setitem__(key,value)
+            key = reg.address
 
+        if reg.has_bitmask:
+            key = '.'.join([key,str(min(reg.bitmask))])
+
+        super().__setitem__(str(key), reg)
 
     def __add__(self, other : Register):
-        if self.__contains__(other.address):
-            raise KeyError(other.address)
-        self._d[other.address] = other
+        addr = str(other.address)
+
+        if other.has_bitmask:
+            addr = '.'.join([str(addr),str(min(other.bitmask))])
+
+        if self.__contains__(addr):
+            raise KeyError(f"Address {other.address} already exists")
+
+        self._d[addr] = other
         return self
 
     def __str__(self):

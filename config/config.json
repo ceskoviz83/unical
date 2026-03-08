@@ -1,9 +1,11 @@
 {
   "modbus": {
-    "address": "192.168.0.10",
+    "address": "192.168.1.101",
     "port": 502,
-    "registry_file" : "sensors.json",
+    "registry_file" : ["sensors.json",
+                      "status.json",
+                      "digital_switch.json"],
     "device_id": 1,
-    "sample_time": 1
+    "sample_time": 10
   }
 }

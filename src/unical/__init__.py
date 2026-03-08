@@ -6,7 +6,6 @@ import logging
 import pandas as pd
 from pymodbus.client import ModbusTcpClient
 
-from core.homeassistant.util import logging
 from .modbus import Modbus
 from .database import DB
 from .register  import RegistryMap, Register
@@ -83,7 +82,7 @@ class Unical:
         self.db :DB  = db_config
         pass
 
-    async def check_connection(self) -> bool:
+    def check_connection(self) -> bool:
         try:
             self.modbus.check_connection() # connect or raise ConnectionExeption
         except Unical.ConnectionException as e:

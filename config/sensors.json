@@ -155,53 +155,5 @@
     "type": "INT",
     "entity_type": "percent_sensor",
     "device": "heat_pump"
-  },
-  {
-    "name": "Setpoint Raffrescamento",
-    "address": 1001,
-    "length": 1,
-    "scale": 0.1,
-    "unit": "°C",
-    "read": true,
-    "write": true,
-    "type": "INT",
-    "entity_type": "temp_sensor",
-    "device": "heating"
-  },
-  {
-    "name": "Setpoint Riscaldamento",
-    "address": 1002,
-    "length": 1,
-    "scale": 0.1,
-    "unit": "°C",
-    "read": true,
-    "write": true,
-    "type": "INT",
-    "entity_type": "temp_sensor",
-    "device": "heating"
-  },
-  {
-    "name": "Setpoint Sanitario",
-    "address": 1003,
-    "length": 1,
-    "scale": 0.1,
-    "unit": "°C",
-    "read": true,
-    "write": true,
-    "type": "INT",
-    "entity_type": "temp_sensor",
-    "device": "water"
-  },
-  {
-    "name": "Ore Funzionamento",
-    "address": 305,
-    "length": 1,
-    "scale": 1,
-    "unit": "h",
-    "read": true,
-    "write": false,
-    "type": "INT",
-    "entity_type": "duration_sensor",
-    "device": "heat_pump"
   }
 ]
