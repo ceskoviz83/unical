@@ -1,4 +1,5 @@
 import os.path
+from copy import deepcopy
 
 import pymodbus
 import json
@@ -9,7 +10,7 @@ import time
 
 from pymodbus.client import ModbusTcpClient
 
-from .register import RegistryMap
+from .register import RegistryMap,Register
 from . import register , const
 from .common import ConfigClass
 
@@ -90,7 +91,7 @@ class Modbus(ConfigClass):
         self.logger.info(f"Sample time is {self.sample_time}")
         while self.isrunning:
             try:
-                self._data = self.read()
+                self._data = self.read_all()
                 time.sleep(self.sample_time)
             except ModbusReadError as e:
                 self.logger.error(e)
@@ -135,29 +136,90 @@ class Modbus(ConfigClass):
         return reg
 
 
-    def _read_register(self,
-                       reg: register.Register,
-                       client: ModbusTcpClient = None, ):
+    def read_register(self,
+                      reg: register.Register,
+                      client: ModbusTcpClient = None, ) -> register.Register | None:
+
+        if client is None:
+            client = self._client
 
         if isinstance(reg,list):
             pass
 
-        if reg.length > 1:
-            pass
+        with client as c:
+            result = c.read_holding_registers(address=reg.address, count=reg.length, device_id=self.device_id)
 
-        if reg.has_bitmask:
-            pass
+        if not result.isError():
+
+            reg.timestamp = datetime.now()
+
+            if reg.length == 1:
+                reg.raw = result.registers[0]
+            else:
+                reg.raw = result.registers
+
+        else:
+            reg = None
+
+        return reg
+
+    def read(self,
+             address: str,
+             client: ModbusTcpClient = None, ) -> register.Register:
 
         if client is None:
-            with self.client as c:
-                result = c.read_holding_registers(address=reg.address, count=reg.length, device_id=self.device_id)
-                pass
-        else:
-            result = client.read_holding_registers(address=reg.address, count=reg.length, device_id=self.device_id)
+            client = self._client
+
+        address = str(address)
+
+        if not address in self._registry:
+            raise ModbusReadError(f"Address {address} not found in registry")
+
+        reg = deepcopy(self._registry[address])
+        reg = self.read_register(reg,client)
+        return reg
+
+
+    def write_register(self,
+                      reg: register.Register,
+                      client: ModbusTcpClient = None, ):
+
+        if client is None:
+            client = self._client
+
+        if isinstance(reg,list):
+            pass
+
+        with client as c:
+            result = c.write_register(address=reg.address,
+                                       value=reg.raw,
+                                       device_id=self.device_id)
 
         return result
 
-    def read(self, id = None) -> RegistryMap | None:
+    def write(self,
+             address: str,
+             value: int,
+             client: ModbusTcpClient = None, ):
+
+        if client is None:
+            client = self._client
+
+        if isinstance(address, int):
+            address = str(address)
+
+        if not address in self._registry:
+            raise ModbusReadError(f"Address {address} not found in registry")
+
+        reg = self._registry[address]
+
+        reg.value = value
+
+        return self.write_register(reg,client)
+
+
+
+    def read_all(self, address = None) -> RegistryMap | None:
         timestamp = datetime.now()
 
         size = len(self._registry)  # quantità massima di segnali da leggere
@@ -174,37 +236,28 @@ class Modbus(ConfigClass):
 
             self.logger.info(f"Reading data from {self.address}")
 
-            if id is not None:
-                result = self._read_register(reg=self._registry[id],
-                                             client=c)
+            if address is not None:
+                result = self.read_register(reg=self._registry[address],
+                                            client=c)
                 if not result.isError():
-                    self._data[id].timestamp = datetime.now()
-                    self._data[id].raw = result.registers[0]
+                    self._data[address].timestamp = datetime.now()
+                    self._data[address].raw = result.registers[0]
 
             else:
                 for idx in self._registry:
                     # leggi e aggiorna il registro
+                    reg = self._registry[idx]
+
+                    if reg.read is False:
+                        continue
 
                     if "." in idx:
                         pass
 
-                    reg = self._registry[idx]
-
-
-
-                    result = self._read_register(reg=reg,
-                                                 client=c)
-
-                    if not result.isError():
-                        self._data[idx].timestamp = datetime.now()
-
-                        if reg.length == 1:
-                            self._data[idx].raw = result.registers[0]
-                        else:
-                            self._data[idx].raw = result.registers
+                    reg = self.read_register(reg=reg,
+                                                client=c)
 
                     hit += 1
-
 
         self._data_lock.release()
 
@@ -212,6 +265,10 @@ class Modbus(ConfigClass):
 
         self.logger.info(f"Read data from {self.address} - found {hit} over {size} - Elapsed_time = {elapsed.microseconds / 1000}ms")
         return self._data
+
+    @property
+    def registry(self):
+        return self._registry
 
 
 

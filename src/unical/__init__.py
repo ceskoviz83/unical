@@ -1,10 +1,12 @@
 import json
 import os
 import sys
+from copy import deepcopy
 from dataclasses import dataclass
 import logging
 import pandas as pd
 from pymodbus.client import ModbusTcpClient
+
 
 from .modbus import Modbus
 from .database import DB
@@ -14,10 +16,14 @@ from .const import UNICAL_PATH
 
 class EntityType(StrEnum):
     """Device types."""
+    """Device types."""
     TEMP_SENSOR = "temp_sensor"
     PRES_SENSOR = "press_sensor"
     PERCENT_SENSOR = "percent_sensor"
     DURATION_SENSOR = "duration_sensor"
+    SWITCH = "switch"
+    SELECT = "select"  # seleziona vari
+    ENUM_SENSOR = "enum_sensor"
     OTHER = "other"
     NOT_KNOWN = "unknown"
 
@@ -101,7 +107,7 @@ class Unical:
 
     @property
     def registry(self) -> RegistryMap | None:
-        return self.modbus._registry
+        return deepcopy(self.modbus.registry)
 
     @property
     def data(self) -> RegistryMap | None:
@@ -119,8 +125,23 @@ class Unical:
     def stop(self):
         self.modbus.stop_polling()
 
-    def read(self, id= None) -> RegistryMap | None:
-        return self.modbus.read(id=id)
+    def read(self, id : str|int|Register = None) -> RegistryMap |Register | None:
+
+        res = None
+        if id is None:
+            return self.modbus.read_all()
+        elif isinstance(id, Register):
+            res = self.modbus.read_register(id)
+        else:
+            res = self.modbus.read(address=id)
+        return res
+
+    def write(self,
+              reg : Register) -> bool:
+
+        if not isinstance(reg, Register):
+            raise TypeError("reg is not a instance of Register")
+        return self.modbus.write_register(reg)
 
     def get_entities(self) -> list[Register] | None:
         """Get devices on api."""

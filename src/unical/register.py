@@ -58,6 +58,8 @@ class Register:
     name: str = None
     address: int = None
     length: int = 0
+    min : float|int = None
+    max : float|int = None
     read : bool = False
     write : bool = False
     type : str = None
@@ -91,13 +93,14 @@ class Register:
         return res
 
     def to_dict(self) -> dict:
-
         f = {'timestamp': self.timestamp,
              'address': str(self.address),
              'name': self.name,
              'raw': self.raw,
              'value': self.value,
              'unit': self.unit,
+             'read': self.read,
+             'write': self.write,
              'description': self.description,}
 
         if self.has_bitmask:
@@ -141,6 +144,12 @@ class Register:
 
     @property
     def value(self):
+        if not self.read:
+            raise RegistryException(f"Register {self.name} is not readable")
+
+        if self.raw is None:
+            return None
+
         res = self.raw
 
         if self.has_bitmask:
@@ -157,6 +166,71 @@ class Register:
             res = round(self.raw * self.scale + self.offset, ndigits=const.DECIMALS)
         return res
 
+    @value.setter
+    def value(self, x):
+        if not self.write:
+            raise RegistryException(f"Register {self.name} is not writable")
+
+        if self.min is not None and x < self.min:
+            raise RegistryException(f"Value {x} is out of range for register {self.name} - Min value is {self.min}")
+
+        if self.max is not None and x > self.max:
+            raise RegistryException(f"Value {x} is out of range for register {self.name} - Max value is {self.max}")
+
+        if not self.write:
+            raise RegistryException(f"Register {self.name} is not writable")
+
+        if self.scale is not None:
+            self.raw = int(round((x - self.offset) / self.scale, ndigits=0))
+
+        elif self.has_bitmask:
+
+            bitlen = len(self.bitmask)
+
+            # check if x i complant with max value
+            if x > 2**bitlen-1:
+                raise RegistryException(f"Value {x} is out of range for register {self.name} - Max value is {2**bitlen-1}")
+
+
+            if self.has_taxonomy:
+                if not self._check_taxonomy_value(x):
+                    raise RegistryException(f"Value {x} is not in taxonomy for register {self.name}- allowed values are:{self.taxonomy.keys()}")
+
+            # maschera i valori in ingresso
+            mask = 0x0000
+            for pos in range(bitlen):
+                mask ^= 2**pos
+
+            x &= mask
+
+            mask = 0xffff
+            for bit in self.bitmask:
+                mask ^= 2**bit
+
+            # setta a zero i bit della maschera
+            self.raw &= mask
+
+            x <<= min(self.bitmask) # sposta le posizioni
+            self.raw |= x
+
+        elif self.has_taxonomy:
+            if self._check_taxonomy_value(x):
+                self.raw = x
+            else:
+                raise RegistryException(f"Value {x} is not in taxonomy for register {self.name} - allowed values are:{self.taxonomy.keys()}")
+        else:
+            self.raw = int(x)
+        return
+
+    def _check_taxonomy_value(self,x) -> bool :
+        found = False
+        for key in self.taxonomy.keys():
+            if str(x) == key:
+                found = True
+                break
+
+        return found
+
 class RegistryMap(Mapper[Register]):
 
     def __init__(self, d : list):
@@ -166,11 +240,10 @@ class RegistryMap(Mapper[Register]):
             item = Register(el)
             self += item
 
+
     def __getitem__(self, key: str|int) -> list | Register:
 
-        if isinstance(key,int):
-            key = str(key)
-
+        key = str(key)
         res = []
 
         # restituisci l'elenco delle chiavi
@@ -182,6 +255,7 @@ class RegistryMap(Mapper[Register]):
             res = [self._d[addr] for addr in self._d.keys() if str(key + '.') in addr]
 
         return res
+
     def __setitem__(self,
                     key : str | None,
                     reg : Register):
@@ -196,13 +270,14 @@ class RegistryMap(Mapper[Register]):
     def __add__(self, other : Register):
         addr = str(other.address)
 
+
         if other.has_bitmask:
-            addr = '.'.join([str(addr),str(min(other.bitmask))])
+            addr = '.'.join([addr,str(min(other.bitmask))])
 
         if self.__contains__(addr):
             raise KeyError(f"Address {other.address} already exists")
 
-        self._d[addr] = other
+        self._d[addr] = other # __setitem__
         return self
 
     def __str__(self):
@@ -214,7 +289,10 @@ class RegistryMap(Mapper[Register]):
         header = res[0].keys()
         rows = [x.values() for x in res]
 
-        return tabulate(rows, headers=header, tablefmt="rst")
+        return tabulate(rows,
+                        headers=header,
+                        disable_numparse=True,
+                        tablefmt="rst")
 
     def to_list(self) -> UserList[Register]:
         return UserList[Register]([self[key] for key in self])
