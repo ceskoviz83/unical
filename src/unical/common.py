@@ -21,7 +21,6 @@ class Sensor(Base):
      unit : Mapped[str]= mapped_column(String(10), nullable=False)
 
 
-
 class ConncetionError(Exception):
     """Break out of the with statement"""
     pass

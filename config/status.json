@@ -6,7 +6,7 @@
         "read": true,
         "write": true,
         "type": "INT",
-        "entity_type": "status",
+        "entity_type": "select",
         "device": "status",
         "taxonomy": {
             "0": "Stand by",

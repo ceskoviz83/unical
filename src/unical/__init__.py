@@ -141,6 +141,9 @@ class Unical:
 
         if not isinstance(reg, Register):
             raise TypeError("reg is not a instance of Register")
+
+
+
         return self.modbus.write_register(reg)
 
     def get_entities(self) -> list[Register] | None:

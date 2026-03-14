@@ -215,9 +215,10 @@ class Register:
 
         elif self.has_taxonomy:
             if self._check_taxonomy_value(x):
-                self.raw = x
+                self.raw = int(x)
             else:
                 raise RegistryException(f"Value {x} is not in taxonomy for register {self.name} - allowed values are:{self.taxonomy.keys()}")
+
         else:
             self.raw = int(x)
         return
