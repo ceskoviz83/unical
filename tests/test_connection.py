@@ -23,7 +23,7 @@ class TestUnical(unittest.TestCase):
         self.assertTrue(res)
 
     def test_read(self):
-        data = self.caldaia.read()
+        data = self.caldaia.read_all()
         l = self.caldaia.data.to_list()
 
         self.assertIsNotNone(l,list)
@@ -37,13 +37,13 @@ class TestUnical(unittest.TestCase):
 
         self.assertIsNone(devices)
 
-        self.caldaia.read()
+        self.caldaia.read_all()
         devices = self.caldaia.get_entities()
         self.assertIsNotNone(devices)
         self.assertGreater( len(devices), 1)
 
     def test_get_device_value(self):
-        self.caldaia.read(400)
+        self.caldaia.read_all(400)
         res = self.caldaia.get_value(400)
         print(res)
 

@@ -1,215 +1,234 @@
 [
-  {
-    "name": "Machine Status",
-    "address": 200,
-    "length": 1,
-    "read": true,
-    "write": true,
-    "type": "INT",
-    "entity_type": "status",
-    "device": "status",
-    "taxonomy": {
-      "2": "Heating",
-      "0": "Stand by",
-      "1": "Cooling",
-      "3": "Cooling + Water Heating",
-      "4": "Heating+ Water Heating",
-      "-1": "Manual Defrosting"
+    {
+        "name": "Machine Status",
+        "address": 200,
+        "length": 1,
+        "read": true,
+        "write": true,
+        "type": "INT",
+        "entity_type": "status",
+        "device": "status",
+        "taxonomy": {
+            "0": "Stand by",
+            "1": "Cooling",
+            "2": "Heating",
+            "5": "Cooling + Water Heating",
+            "6": "Heating+ Water Heating"
+        }
+    },
+    {
+        "name": "Modbus Serial ID",
+        "address": 1089,
+        "length": 1,
+        "read": true,
+        "write": false,
+        "type": "INT",
+        "entity_type": "status",
+        "device": "status"
+    },
+    {
+        "name": "Setpoint Raffrescamento",
+        "address": 1001,
+        "min": 5,
+        "max": 23,
+        "length": 1,
+        "scale": 0.1,
+        "unit": "°C",
+        "read": true,
+        "write": true,
+        "type": "INT",
+        "entity_type": "temp_sensor",
+        "device": "heating"
+    },
+    {
+        "name": "Setpoint Riscaldamento",
+        "address": 1002,
+        "min": 25,
+        "max": 55,
+        "length": 1,
+        "scale": 0.1,
+        "unit": "°C",
+        "read": true,
+        "write": true,
+        "type": "INT",
+        "entity_type": "temp_sensor",
+        "device": "heating"
+    },
+    {
+        "name": "Setpoint Sanitario",
+        "address": 1003,
+        "length": 1,
+        "min": 25,
+        "max": 55,
+        "scale": 0.1,
+        "unit": "°C",
+        "read": true,
+        "write": true,
+        "type": "INT",
+        "entity_type": "temp_sensor",
+        "device": "water"
+    },
+    {
+        "name": "Secondary Cooling Setpoint",
+        "address": 1004,
+        "length": 1,
+        "min": 5,
+        "max": 23,
+        "scale": 0.1,
+        "unit": "°C",
+        "read": true,
+        "write": true,
+        "type": "INT",
+        "entity_type": "temp_sensor",
+        "device": "water"
+    },
+    {
+        "name": "Secondary Heating Setpoint",
+        "address": 1005,
+        "length": 1,
+        "min": 25,
+        "max": 55,
+        "scale": 0.1,
+        "unit": "°C",
+        "read": true,
+        "write": true,
+        "type": "INT",
+        "entity_type": "temp_sensor",
+        "device": "water"
+    },
+    {
+        "name": "Ore Funzionamento",
+        "address": 305,
+        "length": 1,
+        "scale": 1,
+        "unit": "h",
+        "read": true,
+        "write": false,
+        "type": "INT",
+        "entity_type": "duration_sensor",
+        "device": "heat_pump"
+    },
+    {
+        "name": "General Status",
+        "address": 240,
+        "bitmask": [
+            0,
+            1
+        ],
+        "length": 1,
+        "read": true,
+        "write": false,
+        "type": "MASK",
+        "entity_type": "status",
+        "device": "status",
+        "taxonomy": {
+            "0": "Off",
+            "1": "On",
+            "2": "Only Sanitary",
+            "3": "Remote on/off"
+        }
+    },
+    {
+        "name": "Equipment Mode",
+        "address": 240,
+        "bitmask": [
+            2
+        ],
+        "length": 1,
+        "read": true,
+        "write": false,
+        "type": "MASK",
+        "entity_type": "status",
+        "device": "status",
+        "taxonomy": {
+            "0": "Cool",
+            "1": "Heat"
+        }
+    },
+    {
+        "name": "Machine Mode",
+        "address": 240,
+        "bitmask": [
+            3
+        ],
+        "length": 1,
+        "read": true,
+        "write": false,
+        "type": "MASK",
+        "entity_type": "status",
+        "device": "status",
+        "taxonomy": {
+            "0": "Cool",
+            "1": "Heat"
+        }
+    },
+    {
+        "name": "Sanitary",
+        "address": 240,
+        "bitmask": [
+            4
+        ],
+        "length": 1,
+        "read": true,
+        "write": false,
+        "type": "MASK",
+        "entity_type": "status",
+        "device": "status",
+        "taxonomy": {
+            "0": "Off",
+            "1": "Running"
+        }
+    },
+    {
+        "name": "Defrost Status",
+        "address": 240,
+        "bitmask": [
+            5,
+            6,
+            7
+        ],
+        "length": 1,
+        "read": true,
+        "write": false,
+        "type": "MASK",
+        "entity_type": "status",
+        "device": "status",
+        "taxonomy": {
+            "0": "Inactive",
+            "1": "Starting",
+            "2": "Active",
+            "3": "Dripping",
+            "4": "Finished"
+        }
+    },
+    {
+        "name": "Alarms",
+        "address": 950,
+        "length": 1,
+        "read": true,
+        "write": false,
+        "type": "BOOL",
+        "entity_type": "status",
+        "device": "status",
+        "bits": [
+            [
+                "E01 - High Pressure",
+                "E02 - Low Pressure",
+                "E03 - Compressor Overheat",
+                "E04 - Fan overheat",
+                "E05 - Ice",
+                "E06 - Water Flux",
+                "E07 - Low Pressure Water preparation",
+                "E08 - No lubrication - Compressor forced shut off",
+                "E09 - High temp discharging",
+                "E10 - High temperature solar collector",
+                "",
+                "",
+                "E13 - Compressor 2 - Overheat",
+                "E14 - Compressor 2 - Fan overheat",
+                "",
+                "E16 - Pump 1 - Overheat"
+            ]
+        ]
     }
-  },
-  {
-    "name": "Setpoint Raffrescamento",
-    "address": 1001,
-    "length": 1,
-    "scale": 0.1,
-    "unit": "°C",
-    "read": true,
-    "write": true,
-    "type": "INT",
-    "entity_type": "temp_sensor",
-    "device": "heating"
-  },
-  {
-    "name": "Setpoint Riscaldamento",
-    "address": 1002,
-    "length": 1,
-    "scale": 0.1,
-    "unit": "°C",
-    "read": true,
-    "write": true,
-    "type": "INT",
-    "entity_type": "temp_sensor",
-    "device": "heating"
-  },
-  {
-    "name": "Setpoint Sanitario",
-    "address": 1003,
-    "length": 1,
-    "scale": 0.1,
-    "unit": "°C",
-    "read": true,
-    "write": true,
-    "type": "INT",
-    "entity_type": "temp_sensor",
-    "device": "water"
-  },
-  {
-    "name": "Secondary Cooling Setpoint",
-    "address": 1004,
-    "length": 1,
-    "scale": 0.1,
-    "unit": "°C",
-    "read": true,
-    "write": true,
-    "type": "INT",
-    "entity_type": "temp_sensor",
-    "device": "water"
-  },
-  {
-    "name": "Secondary Heating Setpoint",
-    "address": 1005,
-    "length": 1,
-    "scale": 0.1,
-    "unit": "°C",
-    "read": true,
-    "write": true,
-    "type": "INT",
-    "entity_type": "temp_sensor",
-    "device": "water"
-  },
-  {
-    "name": "Ore Funzionamento",
-    "address": 305,
-    "length": 1,
-    "scale": 1,
-    "unit": "h",
-    "read": true,
-    "write": false,
-    "type": "INT",
-    "entity_type": "duration_sensor",
-    "device": "heat_pump"
-  },
-  {
-    "name": "General Status",
-    "address": 240,
-    "bitmask": [
-      0,
-      1
-    ],
-    "length": 1,
-    "read": true,
-    "write": false,
-    "type": "MASK",
-    "entity_type": "status",
-    "device": "status",
-    "taxonomy": {
-      "0": "Off",
-      "1": "On",
-      "2": "Only Sanitary",
-      "3": "Remote on/off"
-    }
-  },
-  {
-    "name": "Equipment Mode",
-    "address": 240,
-    "bitmask": [
-      2
-    ],
-    "length": 1,
-    "read": true,
-    "write": false,
-    "type": "MASK",
-    "entity_type": "status",
-    "device": "status",
-    "taxonomy": {
-      "0": "Cool",
-      "1": "Heat"
-    }
-  },
-  {
-    "name": "Machine Mode",
-    "address": 240,
-    "bitmask": [
-      3
-    ],
-    "length": 1,
-    "read": true,
-    "write": false,
-    "type": "MASK",
-    "entity_type": "status",
-    "device": "status",
-    "taxonomy": {
-      "0": "Cool",
-      "1": "Heat"
-    }
-  },
-  {
-    "name": "Sanitary",
-    "address": 240,
-    "bitmask": [
-      4
-    ],
-    "length": 1,
-    "read": true,
-    "write": false,
-    "type": "MASK",
-    "entity_type": "status",
-    "device": "status",
-    "taxonomy": {
-      "0": "Off",
-      "1": "Running"
-    }
-  },
-  {
-    "name": "Defrost Status",
-    "address": 240,
-    "bitmask": [
-      5,
-      6,
-      7
-    ],
-    "length": 1,
-    "read": true,
-    "write": false,
-    "type": "MASK",
-    "entity_type": "status",
-    "device": "status",
-    "taxonomy": {
-      "0": "Inactive",
-      "1": "Starting",
-      "2": "Active",
-      "3": "Dripping",
-      "4": "Finished"
-    }
-  },
-  {
-    "name": "Alarms",
-    "address": 950,
-    "length": 1,
-    "read": true,
-    "write": false,
-    "type": "BOOL",
-    "entity_type": "status",
-    "device": "status",
-    "bits": [
-      [
-        "E01 - High Pressure",
-        "E02 - Low Pressure",
-        "E03 - Compressor Overheat",
-        "E04 - Fan overheat",
-        "E05 - Ice",
-        "E06 - Water Flux",
-        "E07 - Low Pressure Water preparation",
-        "E08 - No lubrication - Compressor forced shut off",
-        "E09 - High temp discharging",
-        "E10 - High temperature solar collector",
-        "",
-        "",
-        "E13 - Compressor 2 - Overheat",
-        "E14 - Compressor 2 - Fan overheat",
-        "",
-        "E16 - Pump 1 - Overheat"
-      ]
-    ]
-  }
 ]
