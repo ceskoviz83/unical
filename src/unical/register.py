@@ -73,6 +73,7 @@ class Register:
     taxonomy :dict = None
     bitmask : list = None
     bits: dict = None
+    id_actual : str = None
 
     def __init__(self,d : dict):
 
@@ -81,6 +82,9 @@ class Register:
                 self.__setattr__(key,value)
         if self.length == 0 :
             raise RegistryException(f"Register {self.name} has no length")
+
+
+        self.id_actual = str(self.id_actual)
 
         return
 
@@ -124,6 +128,17 @@ class Register:
         return True if self.bits is not None else False
 
     @property
+    def id(self):
+
+        res = str(self.address)
+
+        if self.has_bitmask:
+            res = '.'.join([res,str(min(self.bitmask))])
+
+        return res
+
+
+    @property
     def description(self) -> list:
         res = []
         if self.value is None:
@@ -133,7 +148,10 @@ class Register:
             for offset in range(self.length):
                 word = self.bits[offset]
                 for i, desc in enumerate(word):
-                    res[desc] = True if (self.value >> i) & 1 == 1 else False
+                    is_present = True if (self.value >> i) & 1 == 1 else False
+                    if is_present:
+                        res.append(self.bits[offset * 16 + i])
+
         elif self.taxonomy is not None:
             if str(self.value) in self.taxonomy.keys():
                 res.append(self.taxonomy[str(self.value)])

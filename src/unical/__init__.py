@@ -21,6 +21,8 @@ class EntityType(StrEnum):
     PRES_SENSOR = "press_sensor"
     PERCENT_SENSOR = "percent_sensor"
     DURATION_SENSOR = "duration_sensor"
+    ALARM_SENSOR = "alarm_sensor"
+    CLIMATE = "climate"
     SWITCH = "switch"
     SELECT = "select"  # seleziona vari
     ENUM_SENSOR = "enum_sensor"

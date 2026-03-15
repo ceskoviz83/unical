@@ -1,0 +1,73 @@
+[
+  {
+    "name": "Setpoint Raffrescamento",
+    "address": 1001,
+    "min": 5,
+    "max": 23,
+    "length": 1,
+    "scale": 0.1,
+    "unit": "°C",
+    "read": true,
+    "write": true,
+    "type": "INT",
+    "entity_type": "temp_sensor",
+    "device": "heating"
+  },
+  {
+    "name": "Setpoint Riscaldamento",
+    "address": 1002,
+    "min": 25,
+    "max": 55,
+    "length": 1,
+    "scale": 0.1,
+    "unit": "°C",
+    "read": true,
+    "write": true,
+    "type": "INT",
+    "id_actual": 247,
+    "entity_type": "temp_sensor",
+    "device": "heating"
+  },
+  {
+    "name": "Setpoint Sanitario",
+    "address": 1003,
+    "length": 1,
+    "min": 25,
+    "max": 55,
+    "scale": 0.1,
+    "unit": "°C",
+    "read": true,
+    "write": true,
+    "type": "INT",
+    "entity_type": "temp_sensor",
+    "device": "water"
+  },
+  {
+    "name": "Secondary Cooling Setpoint",
+    "address": 1004,
+    "length": 1,
+    "min": 5,
+    "max": 23,
+    "scale": 0.1,
+    "unit": "°C",
+    "read": true,
+    "write": true,
+    "type": "INT",
+    "entity_type": "temp_sensor",
+    "device": "water"
+  },
+  {
+    "name": "Secondary Heating Setpoint",
+    "address": 1005,
+    "length": 1,
+    "min": 25,
+    "max": 55,
+    "scale": 0.1,
+    "unit": "°C",
+    "read": true,
+    "write": true,
+    "type": "INT",
+    "entity_type": "temp_sensor",
+    "device": "heating"
+  }
+]

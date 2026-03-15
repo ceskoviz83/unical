@@ -9,8 +9,8 @@
         "read": true,
         "write": false,
         "type": "INT",
-        "entity_type": "status",
-        "device": "status",
+        "entity_type": "enum_sensor",
+        "device": "digital_input",
         "taxonomy": {
             "0": "Off",
             "1": "On"
@@ -26,8 +26,8 @@
         "read": true,
         "write": false,
         "type": "INT",
-        "entity_type": "status",
-        "device": "status",
+        "entity_type": "enum_sensor",
+        "device": "digital_input",
         "taxonomy": {
             "0": "Off",
             "1": "On"
@@ -43,8 +43,8 @@
         "read": true,
         "write": false,
         "type": "INT",
-        "entity_type": "status",
-        "device": "status",
+        "entity_type": "enum_sensor",
+        "device": "digital_input",
         "taxonomy": {
             "0": "Off",
             "1": "On"
